@@ -4,11 +4,9 @@
 <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
     <h1 class="display-4">Система управления рассылками</h1>
     <p class="lead">Управляйте своими рассылками и получателями</p>
-    <p>
-        <a class="btn btn-primary" href="{% url 'mailing:recipient_create' %}">Добавить получателя</a>
-    </p>
+
 </div>
 {% endblock %}
 {% block content %}
-<p>Проверка работы</p>
+<a class="btn btn-primary" href="{% url 'mailing:recipients_list' %}">Посмотреть список получателей</a>
 {% endblock %}
