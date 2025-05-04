@@ -1,0 +1,37 @@
+{% extends "mailing/base.html" %}
+{% block header %}
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+            <h1 class="display-4">Система управления рассылками</h1>
+            <p class="lead">Добавление/редактирование получателя</p>
+    </div>
+{% endblock %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            <form class="row" method="post" enctype="multipart/form-data">
+                <div class="card">
+                    <div class="card-body">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        {{ form.as_p }}
+                    </div>
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-outline-primary">
+                            {% if object %}
+                            Сохранить
+                            {% else %}
+                            Создать
+                            {% endif %}
+                        </button>
+                        <a href="{% url 'mailing:home' %}" class="btn btn-outline-secondary">Отмена</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
