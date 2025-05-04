@@ -1,0 +1,49 @@
+{% extends "mailing/base.html" %}
+
+{% block header %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Система управления рассылками</h1>
+    <p class="lead">Список доступных рассылок</p>
+    <p>
+        <a class="btn btn-primary" href="{% url 'mailing:dispatch_create' %}">Добавить рассылку</a>
+    </p>
+</div>
+{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    {% if dispatches %}
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Статус</th>
+            <th>Сообщение</th>
+            <th>Получатель</th>
+            <th>Дата и время первой отправки</th>
+            <th>Дата и время окончания отправки</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for dispatch in dispatches %}
+        <tr>
+            <td>{{ dispatch.get_status_display }}</td>
+            <td>{{ dispatch.message }}</td>
+            <td>{{ dispatch.recipient.all|join:", " }}</td>
+            <td>{{ dispatch.first_sending_datetime|default:"-" }}</td>
+            <td>{{ dispatch.end_of_sending_datetime|default:"-" }}</td>
+            <td>
+                <div class="btn-group" role="group">
+                    <a class="btn btn-outline-primary"
+                       href="{% url 'mailing:dispatch_detail' dispatch.pk %}">Подробнее</a>
+                    <a class="btn btn-outline-secondary" href="{% url 'mailing:dispatch_update' dispatch.pk %}">Редактировать</a>
+                    <a class="btn btn-outline-danger" href="{% url 'mailing:dispatch_delete' dispatch.pk %}">Удалить</a>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Нет доступных рассылок</p>
+    {% endif %}
+</div>
+{% endblock %}

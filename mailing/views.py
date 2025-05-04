@@ -1,13 +1,20 @@
-from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView, TemplateView
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    TemplateView,
+    UpdateView,
+)
 
-from mailing.forms import RecipientForm, MessageForm
-from mailing.models import Recipient, Message
+from mailing.forms import MessageForm, RecipientForm, DispatchForm
+from mailing.models import Message, Recipient, Dispatch
 
 
 class HomeView(TemplateView):
     template_name = "mailing/home.html"
+
 
 class RecipientCreateView(CreateView):
     model = Recipient
@@ -18,16 +25,17 @@ class RecipientCreateView(CreateView):
 class RecipientUpdateView(UpdateView):
     model = Recipient
     form_class = RecipientForm
-    success_url = reverse_lazy("mailing:recipients_list") # ---------------------------------
+    success_url = reverse_lazy("mailing:recipients_list")
 
 
 class RecipientDetailView(DetailView):
     model = Recipient
 
+
 class RecipientListView(ListView):
     model = Recipient
     template_name = "mailing/recipients_list.html"
-    context_object_name = 'recipients'
+    context_object_name = "recipients"
 
 
 class RecipientDeleteView(DeleteView):
@@ -38,18 +46,19 @@ class RecipientDeleteView(DeleteView):
 class MessagesListView(ListView):
     model = Message
     template_name = "mailing/messages_list.html"
-    context_object_name = 'messages'
+    context_object_name = "messages"
+
 
 class MessageCreateView(CreateView):
     model = Message
     form_class = MessageForm
-    success_url = reverse_lazy("mailing:messages_list") # ---------------------------------
+    success_url = reverse_lazy("mailing:messages_list")
 
 
 class MessageUpdateView(UpdateView):
     model = Message
     form_class = MessageForm
-    success_url = reverse_lazy("mailing:messages_list") # ---------------------------------
+    success_url = reverse_lazy("mailing:messages_list")
 
 
 class MessageDetailView(DetailView):
@@ -59,3 +68,30 @@ class MessageDetailView(DetailView):
 class MessageDeleteView(DeleteView):
     model = Message
     success_url = reverse_lazy("mailing:messages_list")
+
+
+class DispatchesListView(ListView):
+    model = Dispatch
+    template_name = "mailing/dispatches_list.html"
+    context_object_name = "dispatches"
+
+
+class DispatchCreateView(CreateView):
+    model = Dispatch
+    form_class = DispatchForm
+    success_url = reverse_lazy("mailing:dispatches_list")
+
+
+class DispatchUpdateView(UpdateView):
+    model = Dispatch
+    form_class = DispatchForm
+    success_url = reverse_lazy("mailing:dispatches_list")
+
+
+class DispatchDetailView(DetailView):
+    model = Dispatch
+
+
+class DispatchDeleteView(DeleteView):
+    model = Dispatch
+    success_url = reverse_lazy("mailing:dispatches_list")

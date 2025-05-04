@@ -2,7 +2,7 @@
 {% block header %}
     <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
             <h1 class="display-4">Система управления рассылками</h1>
-            <p class="lead">Добавление/редактирование письма</p>
+            <p class="lead">Добавление/редактирование рассылки</p>
     </div>
 {% endblock %}
 {% block content %}
@@ -24,7 +24,7 @@
                             Создать
                             {% endif %}
                         </button>
-                        <a href="{% url 'mailing:messages_list' %}" class="btn btn-outline-secondary">Отмена</a>
+                        <a href="{% url 'mailing:dispatches_list' %}" class="btn btn-outline-secondary">Отмена</a>
                     </div>
                 </div>
             </form>
