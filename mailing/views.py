@@ -35,16 +35,21 @@ class RecipientDeleteView(DeleteView):
     success_url = reverse_lazy("mailing:recipients_list")
 
 
+class MessagesListView(ListView):
+    model = Message
+    template_name = "mailing/messages_list.html"
+    context_object_name = 'messages'
+
 class MessageCreateView(CreateView):
     model = Message
     form_class = MessageForm
-    success_url = reverse_lazy("mailing:home") # ---------------------------------
+    success_url = reverse_lazy("mailing:messages_list") # ---------------------------------
 
 
 class MessageUpdateView(UpdateView):
     model = Message
     form_class = MessageForm
-    success_url = reverse_lazy("mailing:home") # ---------------------------------
+    success_url = reverse_lazy("mailing:messages_list") # ---------------------------------
 
 
 class MessageDetailView(DetailView):
@@ -53,4 +58,4 @@ class MessageDetailView(DetailView):
 
 class MessageDeleteView(DeleteView):
     model = Message
-    success_url = reverse_lazy("mailing:home")
+    success_url = reverse_lazy("mailing:messages_list")

@@ -11,6 +11,7 @@
 {% endblock %}
 {% block content %}
 <div class="container mt-5">
+    {% if recipients %}
     <table class="table table-striped">
         <thead>
             <tr>
@@ -25,7 +26,7 @@
             <tr>
                 <td>{{ recipient.email }}</td>
                 <td>{{ recipient.full_name }}</td>
-                <td>{{ recipient.comment }}</td>
+                <td>{{ recipient.comment|truncatechars:50 }}</td>
                 <td>
                     <a class="btn btn-outline-primary" href="{% url 'mailing:recipient_detail' recipient.pk %}">Подробнее</a>
                     <a class="btn btn-outline-secondary" href="{% url 'mailing:recipient_update' recipient.pk %}">Редактировать</a>
@@ -35,5 +36,8 @@
             {% endfor %}
         </tbody>
     </table>
+    {% else %}
+    <p>Нет доступных получателей.</p>
+    {% endif %}
 </div>
 {% endblock %}
