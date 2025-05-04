@@ -1,0 +1,39 @@
+{% extends "mailing/base.html" %}
+
+{% block header %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Система управления рассылками</h1>
+    <p class="lead">Список получателей</p>
+    <p>
+        <a class="btn btn-primary" href="{% url 'mailing:recipient_create' %}">Добавить получателя</a>
+    </p>
+</div>
+{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>ФИО</th>
+                <th>Комментарий</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for recipient in recipients %}
+            <tr>
+                <td>{{ recipient.email }}</td>
+                <td>{{ recipient.full_name }}</td>
+                <td>{{ recipient.comment }}</td>
+                <td>
+                    <a class="btn btn-outline-primary" href="{% url 'mailing:recipient_detail' recipient.pk %}">Подробнее</a>
+                    <a class="btn btn-outline-secondary" href="{% url 'mailing:recipient_update' recipient.pk %}">Редактировать</a>
+                    <a class="btn btn-outline-danger" href="{% url 'mailing:recipient_delete' recipient.pk %}">Удалить</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
