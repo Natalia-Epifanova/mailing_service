@@ -18,7 +18,6 @@
             <th>Email</th>
             <th>ФИО</th>
             <th>Комментарий</th>
-            <th>Действия</th>
         </tr>
         </thead>
         <tbody>
@@ -27,7 +26,7 @@
             <td>{{ recipient.email }}</td>
             <td>{{ recipient.full_name }}</td>
             <td>{{ recipient.comment|truncatechars:50 }}</td>
-            <td>
+            <td class="text-end">
                 <div class="btn-group" role="group">
                     <a class="btn btn-outline-primary"
                    href="{% url 'mailing:recipient_detail' recipient.pk %}">Подробнее</a>

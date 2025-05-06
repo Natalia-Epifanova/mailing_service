@@ -17,7 +17,6 @@
         <tr>
             <th>Тема письма</th>
             <th>Тело письма</th>
-            <th>Действия</th>
         </tr>
         </thead>
         <tbody>
@@ -25,7 +24,7 @@
         <tr>
             <td>{{ message.theme }}</td>
             <td>{{ message.content|truncatechars:50 }}</td>
-            <td>
+            <td class="text-end">
                 <div class="btn-group" role="group">
                     <a class="btn btn-outline-primary"
                        href="{% url 'mailing:message_detail' message.pk %}">Подробнее</a>
