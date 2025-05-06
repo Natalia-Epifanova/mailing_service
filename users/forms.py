@@ -15,5 +15,3 @@ class UserProfileForm(StyleFormMixin, ModelForm):
     class Meta:
         model = User
         fields = ("avatar", "phone", "country")
-
-
