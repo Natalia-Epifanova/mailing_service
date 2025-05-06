@@ -2,7 +2,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import include, path
 
 from users.apps import UsersConfig
-from users.views import UserCreateView, edit_profile, email_verification
+from users.views import UserCreateView, edit_profile, email_verification, UserDetailView
 
 app_name = UsersConfig.name
 
@@ -12,4 +12,9 @@ urlpatterns = [
     path("register/", UserCreateView.as_view(), name="register"),
     path("edit_profile/", edit_profile, name="edit_profile"),
     path("email_confirm/<str:token>/", email_verification, name="email_confirm"),
+    path(
+        "profile_detail/<int:pk>/",
+        UserDetailView.as_view(),
+        name="profile_detail",
+    ),
 ]

@@ -9,24 +9,24 @@ class User(AbstractUser):
         upload_to="users/avatars/",
         blank=True,
         null=True,
-        verbose_name="Photo",
+        verbose_name="Фото",
     )
 
     phone = models.CharField(
         max_length=35,
-        verbose_name="Phone",
+        verbose_name="Телефон",
         blank=True,
         null=True,
     )
     country = models.CharField(
         max_length=35,
-        verbose_name="Country",
+        verbose_name="Страна",
         blank=True,
         null=True,
     )
     token = models.CharField(
         max_length=100,
-        verbose_name="Token",
+        verbose_name="Токен",
         blank=True,
         null=True,
     )
