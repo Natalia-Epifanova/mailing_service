@@ -1,4 +1,10 @@
+from django.utils import timezone
+
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -8,8 +14,9 @@ from django.views.generic import (
     UpdateView,
 )
 
+from config.settings import EMAIL_HOST_USER
 from mailing.forms import MessageForm, RecipientForm, DispatchForm
-from mailing.models import Message, Recipient, Dispatch
+from mailing.models import Message, Recipient, Dispatch, MailingAttempt
 
 
 class HomeView(TemplateView):
@@ -81,11 +88,26 @@ class DispatchCreateView(CreateView):
     form_class = DispatchForm
     success_url = reverse_lazy("mailing:dispatches_list")
 
+    def form_valid(self, form):
+        dispatch = form.save(commit=False)
+        dispatch.status = "created"
+        dispatch.save()
+        form.save_m2m()
+        return super().form_valid(form)
+
 
 class DispatchUpdateView(UpdateView):
     model = Dispatch
     form_class = DispatchForm
     success_url = reverse_lazy("mailing:dispatches_list")
+
+    def form_valid(self, form):
+        dispatch = form.save(commit=False)
+        if dispatch.status == "started":
+            dispatch.first_sending_datetime = timezone.now()
+            dispatch.send_mail()
+        dispatch.save()
+        return super().form_valid(form)
 
 
 class DispatchDetailView(DetailView):
@@ -95,3 +117,16 @@ class DispatchDetailView(DetailView):
 class DispatchDeleteView(DeleteView):
     model = Dispatch
     success_url = reverse_lazy("mailing:dispatches_list")
+
+
+class MailingAttemptListView(ListView):
+    model = MailingAttempt
+    template_name = "mailing/mailing_attempts_list.html"
+    context_object_name = "attempts"
+
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     if user.groups.filter(name="Manager").exists():
+    #         return MailingAttempt.objects.all()
+    #     return MailingAttempt.objects.filter(mailing__owner=user.id)
+    #

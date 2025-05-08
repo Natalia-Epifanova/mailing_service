@@ -18,7 +18,7 @@ from mailing.views import (
     DispatchCreateView,
     DispatchUpdateView,
     DispatchDetailView,
-    DispatchDeleteView,
+    DispatchDeleteView, MailingAttemptListView,
 )
 
 app_name = MailingConfig.name
@@ -72,4 +72,5 @@ urlpatterns = [
         DispatchDeleteView.as_view(),
         name="dispatch_delete",
     ),
+    path("mailing_attempts_list/", MailingAttemptListView.as_view(), name="mailing_attempts_list"),
 ]

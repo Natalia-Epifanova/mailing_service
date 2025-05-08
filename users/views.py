@@ -23,18 +23,20 @@ class UserCreateView(CreateView):
         host = self.request.get_host()
         user.token = token
         user.save()
-        url = f'http://{host}/users/email_confirm/{token}/'
+        url = f"http://{host}/users/email_confirm/{token}/"
         send_mail(
             subject="Подтверждение почты",
             message=f"Добрый день! Для подтверждения почты перейдите по ссылке {url}",
-            from_email = EMAIL_HOST_USER,
-            recipient_list = {user.email}
+            from_email=EMAIL_HOST_USER,
+            recipient_list={user.email},
         )
         return super().form_valid(form)
 
+
 class UserDetailView(DetailView):
     model = User
-    template_name = 'users/profile_detail.html'
+    template_name = "users/profile_detail.html"
+
 
 def email_verification(request, token):
     user = get_object_or_404(User, token=token)

@@ -1,0 +1,6 @@
+{% extends "mailing/base.html" %}
+{% block content %}
+<h1>Результат рассылки</h1>
+<p>{{ message }}</p>
+<a href="{% url 'mailing:mailing_attempts_list' %}">Вернуться к списку рассылок</a>
+{% endblock %}
