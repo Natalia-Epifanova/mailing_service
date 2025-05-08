@@ -22,6 +22,17 @@ from mailing.models import Message, Recipient, Dispatch, MailingAttempt
 class HomeView(TemplateView):
     template_name = "mailing/home.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['total_dispatches'] = Dispatch.objects.count()
+
+        context['active_dispatches'] = Dispatch.objects.filter(status='started').count()
+
+        context['unique_recipients'] = Recipient.objects.count()
+
+        return context
+
 
 class RecipientCreateView(CreateView):
     model = Recipient

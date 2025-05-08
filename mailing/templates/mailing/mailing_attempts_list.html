@@ -23,10 +23,10 @@
         {% for attempt in object_list %}
         <tr>
             <td>{{ attempt.id }}</td>
-            <td>{{ attempt.attempted_at }}</td>
+            <td>{{ attempt.mailing_attempt_datetime }}</td>
             <td>{{ attempt.status }}</td>
-            <td>{{ attempt.mail_server_response }}</td>
-            <td>{{ attempt.mailing }}</td>
+            <td>{{ attempt.server_response }}</td>
+            <td>{{ attempt.dispatch.message }}</td>
 
         </tr>
         {% endfor %}

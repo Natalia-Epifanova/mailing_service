@@ -8,7 +8,9 @@
 </div>
 {% endblock %}
 {% block content %}
-    <p>
-        здесь будет информация
-    </p>
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto">
+    <p>Всего рассылок: {{ total_dispatches }}</p>
+    <p>Активные рассылки: {{ active_dispatches }}</p>
+    <p>Уникальные получатели: {{ unique_recipients }}</p>
+</div>
 {% endblock %}

@@ -99,7 +99,6 @@ class Dispatch(models.Model):
                 recipient_list=recipients_emails,
                 fail_silently=False,
             )
-            # Сохраните информацию о попытке отправки
             MailingAttempt.objects.create(
                 mailing_attempt_datetime=timezone.now(),
                 status="success",
