@@ -37,6 +37,7 @@
                        href="{% url 'mailing:dispatch_detail' dispatch.pk %}">Подробнее</a>
                     <a class="btn btn-outline-secondary" href="{% url 'mailing:dispatch_update' dispatch.pk %}">Редактировать</a>
                     <a class="btn btn-outline-danger" href="{% url 'mailing:dispatch_delete' dispatch.pk %}">Удалить</a>
+                    <a class="btn btn-outline-success" href="{% url 'mailing:dispatch_stats' dispatch.pk %}" >Статистика</a>
                 </div>
             </td>
         </tr>

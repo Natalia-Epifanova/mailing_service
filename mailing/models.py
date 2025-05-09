@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 
 from config.settings import EMAIL_HOST_USER
+from users.models import User
 
 
 class Recipient(models.Model):
@@ -19,6 +20,9 @@ class Recipient(models.Model):
         blank=True,
         null=True,
         verbose_name="Комментарий",
+    )
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="Владелец", blank=True, null=True
     )
 
     class Meta:
@@ -38,6 +42,9 @@ class Message(models.Model):
         blank=True,
         null=True,
         verbose_name="Тело письма",
+    )
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="Владелец", blank=True, null=True
     )
 
     class Meta:
@@ -82,49 +89,51 @@ class Dispatch(models.Model):
         Recipient,
         verbose_name="Получатели",
     )
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="Владелец", blank=True, null=True
+    )
 
     class Meta:
         verbose_name = "Рассылка"
         verbose_name_plural = "Рассылки"
         ordering = ["status", "end_of_sending_datetime"]
 
-    def send_mail(self):
-        recipients = self.recipient.all()
-        recipients_emails = [recipient.email for recipient in recipients]
-        try:
-            send_mail(
-                subject=self.message.theme,
-                message=self.message.content,
-                from_email=EMAIL_HOST_USER,
-                recipient_list=recipients_emails,
-                fail_silently=False,
-            )
-            MailingAttempt.objects.create(
-                mailing_attempt_datetime=timezone.now(),
-                status="success",
-                dispatch=self,
-            )
-            return True
-        except Exception as e:
-            MailingAttempt.objects.create(
-                mailing_attempt_datetime=timezone.now(),
-                status="unsuccessfully",
-                server_response=str(e),
-                dispatch=self,
-            )
-            return False
-
     def save(self, *args, **kwargs):
         """Устанавливаем дату первой отправки при изменении статуса на "Запущена"
         и дату окончания отправки при изменении статуса на "Завершена" """
         if self.status == "started" and not self.first_sending_datetime:
             self.first_sending_datetime = timezone.now()
-            self.send_mail()
+            self.send_emails()
 
         if self.status == "completed" and not self.end_of_sending_datetime:
             self.end_of_sending_datetime = timezone.now()
 
         super().save(*args, **kwargs)
+
+    def send_emails(self):
+        """Отправка писем для всех получателей"""
+        recipients = self.recipient.all()
+        for recipient in recipients:
+            try:
+                send_mail(
+                    subject=self.message.theme,
+                    message=self.message.content,
+                    from_email=EMAIL_HOST_USER,
+                    recipient_list=[recipient.email],
+                    fail_silently=False,
+                )
+                MailingAttempt.objects.create(
+                    mailing_attempt_datetime=timezone.now(),
+                    status="success",
+                    dispatch=self,
+                )
+            except Exception as e:
+                MailingAttempt.objects.create(
+                    mailing_attempt_datetime=timezone.now(),
+                    status="unsuccessfully",
+                    server_response=str(e),
+                    dispatch=self,
+                )
 
     def __str__(self):
         return f"{self.message} - {self.status}"

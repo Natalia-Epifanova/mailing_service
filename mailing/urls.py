@@ -1,25 +1,16 @@
 from django.urls import path
-from django.views.decorators.cache import cache_page
+
 
 from mailing.apps import MailingConfig
-from mailing.views import (
-    HomeView,
-    MessageCreateView,
-    MessageDeleteView,
-    MessageDetailView,
-    MessagesListView,
-    MessageUpdateView,
-    RecipientCreateView,
-    RecipientDeleteView,
-    RecipientDetailView,
-    RecipientListView,
-    RecipientUpdateView,
-    DispatchesListView,
-    DispatchCreateView,
-    DispatchUpdateView,
-    DispatchDetailView,
-    DispatchDeleteView, MailingAttemptListView,
-)
+from mailing.views import (DispatchCreateView, DispatchDeleteView,
+                           DispatchDetailView, DispatchesListView,
+                           DispatchStatsView, DispatchUpdateView, HomeView,
+                           MailingAttemptListView, MessageCreateView,
+                           MessageDeleteView, MessageDetailView,
+                           MessagesListView, MessageUpdateView,
+                           RecipientCreateView, RecipientDeleteView,
+                           RecipientDetailView, RecipientListView,
+                           RecipientUpdateView)
 
 app_name = MailingConfig.name
 
@@ -72,5 +63,12 @@ urlpatterns = [
         DispatchDeleteView.as_view(),
         name="dispatch_delete",
     ),
-    path("mailing_attempts_list/", MailingAttemptListView.as_view(), name="mailing_attempts_list"),
+    path(
+        "mailing_attempts_list/",
+        MailingAttemptListView.as_view(),
+        name="mailing_attempts_list",
+    ),
+    path(
+        "dispatch/<int:pk>/stats/", DispatchStatsView.as_view(), name="dispatch_stats"
+    ),
 ]

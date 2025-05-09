@@ -1,14 +1,14 @@
+import secrets
+
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
-from django.shortcuts import redirect, get_object_or_404, render
-from django.urls import reverse_lazy, reverse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DetailView
 
 from config.settings import EMAIL_HOST_USER
-from users.forms import UserRegisterForm, UserProfileForm
+from users.forms import UserProfileForm, UserRegisterForm
 from users.models import User
-
-import secrets
 
 
 class UserCreateView(CreateView):

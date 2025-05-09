@@ -1,6 +1,7 @@
-from django.forms import ModelForm
+from django import forms
+from django.forms import ModelForm, ChoiceField
 
-from mailing.models import Message, Recipient, Dispatch
+from mailing.models import Dispatch, Message, Recipient
 
 
 class StyleFormMixin:
@@ -13,28 +14,66 @@ class StyleFormMixin:
 class RecipientForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Recipient
-        fields = "__all__"
+        fields = ["email", "full_name", "comment"]
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request", None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.request and not instance.pk:
+            instance.owner = self.request.user
+        if commit:
+            instance.save()
+        return instance
 
 
 class MessageForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Message
-        fields = "__all__"
+        fields = ["theme", "content"]
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request", None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.request and not instance.pk:
+            instance.owner = self.request.user
+        if commit:
+            instance.save()
+        return instance
 
 
 class DispatchForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Dispatch
-        exclude = ("first_sending_datetime", "end_of_sending_datetime")
+        exclude = ("first_sending_datetime", "end_of_sending_datetime", "owner")
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        is_update = kwargs.pop('is_update', False)
         super().__init__(*args, **kwargs)
-        if self.instance.pk is None:
-            self.fields['status'].widget.attrs['readonly'] = True
-            self.initial['status'] = "created"
 
-    def clean_status(self):
-        """Если форма новая, возвращаем 'created', иначе текущее значение."""
-        if self.instance.pk is None:
-            return "created"
-        return self.cleaned_data.get('status', "created")
+        if self.request:
+            self.fields['message'].queryset = Message.objects.filter(owner=self.request.user)
+            self.fields['recipient'].queryset = Recipient.objects.filter(owner=self.request.user)
+
+        if is_update:
+            self.fields['status'].widget.attrs.update({'class': 'form-control'})
+        else:
+            self.fields['status'].widget = forms.HiddenInput()
+            self.fields['status'].initial = "created"
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.request:
+            instance.owner = self.request.user
+            if not instance.pk:
+                instance.status = "created"
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance
