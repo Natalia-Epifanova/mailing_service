@@ -15,15 +15,22 @@
                 <div class="card">
                     {% if request.GET.blocked %}
                     <div class="alert alert-danger">
-                        Ваш аккаунт был заблокирован во время сессии
+                        Ваш аккаунт заблокирован. Обратитесь к администратору.
                     </div>
+                    {% endif %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
                     {% endif %}
 
                     <div class="card-body">
                         {% csrf_token %}
                         {{ form.as_p }}
 
-                        {# Блок для вывода ошибок #}
+                        {# Блок для вывода ошибок формы #}
                         {% if form.non_field_errors %}
                         <div class="alert alert-danger">
                             {% for error in form.non_field_errors %}
