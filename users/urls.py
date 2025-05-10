@@ -7,12 +7,12 @@ from django.urls import path, reverse_lazy
 
 from users.apps import UsersConfig
 from users.views import (UserCreateView, UserDetailView, edit_profile,
-                         email_verification)
+                         email_verification, UserListView, ToggleUserBlockView, CustomLoginView)
 
 app_name = UsersConfig.name
 
 urlpatterns = [
-    path("login/", LoginView.as_view(template_name="login.html"), name="login"),
+    path("login/", CustomLoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("register/", UserCreateView.as_view(), name="register"),
     path("edit_profile/", edit_profile, name="edit_profile"),
@@ -52,4 +52,6 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
+    path('users/', UserListView.as_view(), name='users_list'),
+    path('toggle-block/<int:pk>/', ToggleUserBlockView.as_view(), name='toggle_block'),
 ]

@@ -10,7 +10,7 @@ from mailing.views import (DispatchCreateView, DispatchDeleteView,
                            MessagesListView, MessageUpdateView,
                            RecipientCreateView, RecipientDeleteView,
                            RecipientDetailView, RecipientListView,
-                           RecipientUpdateView)
+                           RecipientUpdateView, FinishDispatchView)
 
 app_name = MailingConfig.name
 
@@ -71,4 +71,5 @@ urlpatterns = [
     path(
         "dispatch/<int:pk>/stats/", DispatchStatsView.as_view(), name="dispatch_stats"
     ),
+    path('finish/<int:pk>/', FinishDispatchView.as_view(), name='finish_dispatch'),
 ]

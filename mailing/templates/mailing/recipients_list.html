@@ -28,10 +28,14 @@
             <td>{{ recipient.comment|truncatechars:50 }}</td>
             <td class="text-end">
                 <div class="btn-group" role="group">
+                    {% if perms.mailing.can_view_recipient_detail or user == recipient.owner %}
                     <a class="btn btn-outline-primary"
                    href="{% url 'mailing:recipient_detail' recipient.pk %}">Подробнее</a>
+                    {% endif %}
+                    {% if user == recipient.owner %}
                     <a class="btn btn-outline-secondary" href="{% url 'mailing:recipient_update' recipient.pk %}">Редактировать</a>
                     <a class="btn btn-outline-danger" href="{% url 'mailing:recipient_delete' recipient.pk %}">Удалить</a>
+                    {% endif %}
                 </div>
             </td>
         </tr>

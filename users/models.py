@@ -31,12 +31,23 @@ class User(AbstractUser):
         null=True,
     )
 
+    is_blocked = models.BooleanField(default=False, verbose_name="Заблокирован")
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
+        permissions = [
+            ("can_view_users_list", "Can view users list"),
+            ("can_block_users", "Can block/unblock users"),
+            ("can_finish_dispatches", "Can finish dispatches"),
+        ]
 
     def __str__(self):
         return self.email
+
+    def is_active(self):
+        """Переопределяем метод, чтобы заблокированные пользователи считались неактивными"""
+        return super().is_active and not self.is_blocked

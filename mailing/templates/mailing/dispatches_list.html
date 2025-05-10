@@ -33,11 +33,23 @@
             <td>{{ dispatch.end_of_sending_datetime|default:"-" }}</td>
             <td class="text-end">
                 <div class="btn-group" role="group">
+                    {% if perms.mailing.can_view_dispatch_detail or user == dispatch.owner %}
                     <a class="btn btn-outline-primary"
                        href="{% url 'mailing:dispatch_detail' dispatch.pk %}">Подробнее</a>
+                    {% endif %}
+                    {% if perms.users.can_finish_dispatches and dispatch.status == 'started' and user != dispatch.owner%}
+                    <form method="post" action="{% url 'mailing:finish_dispatch' dispatch.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Остановить</button>
+                    </form>
+                    {% endif %}
+                    {% if user == dispatch.owner %}
                     <a class="btn btn-outline-secondary" href="{% url 'mailing:dispatch_update' dispatch.pk %}">Редактировать</a>
                     <a class="btn btn-outline-danger" href="{% url 'mailing:dispatch_delete' dispatch.pk %}">Удалить</a>
-                    <a class="btn btn-outline-success" href="{% url 'mailing:dispatch_stats' dispatch.pk %}" >Статистика</a>
+                    <a class="btn btn-outline-success"
+                       href="{% url 'mailing:dispatch_stats' dispatch.pk %}">Статистика</a>
+                    {% endif %}
+
                 </div>
             </td>
         </tr>

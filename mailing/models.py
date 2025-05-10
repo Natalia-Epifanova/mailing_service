@@ -28,6 +28,10 @@ class Recipient(models.Model):
     class Meta:
         verbose_name = "Получатель"
         verbose_name_plural = "Получатели"
+        permissions = [
+            ("can_view_all_recipients", "Can view all recipients"),
+            ("can_view_recipient_detail", "Can view recipient detail"),
+        ]
 
     def __str__(self):
         return self.email
@@ -50,6 +54,10 @@ class Message(models.Model):
     class Meta:
         verbose_name = "Письмо"
         verbose_name_plural = "Письма"
+        permissions = [
+            ("can_view_all_messages", "Can view all messages"),
+            ("can_view_message_detail", "Can view message detail"),
+        ]
 
     def __str__(self):
         return self.theme
@@ -97,15 +105,19 @@ class Dispatch(models.Model):
         verbose_name = "Рассылка"
         verbose_name_plural = "Рассылки"
         ordering = ["status", "end_of_sending_datetime"]
+        permissions = [
+            ("can_view_all_dispatches", "Can view all dispatches"),
+            ("can_view_dispatch_detail", "Can view dispatch detail"),
+        ]
 
     def save(self, *args, **kwargs):
         """Устанавливаем дату первой отправки при изменении статуса на "Запущена"
         и дату окончания отправки при изменении статуса на "Завершена" """
-        if self.status == "started" and not self.first_sending_datetime:
+        if self.status == "started":
             self.first_sending_datetime = timezone.now()
             self.send_emails()
 
-        if self.status == "completed" and not self.end_of_sending_datetime:
+        if self.status == "completed":
             self.end_of_sending_datetime = timezone.now()
 
         super().save(*args, **kwargs)
