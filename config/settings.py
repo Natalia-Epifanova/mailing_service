@@ -32,7 +32,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'users.middleware.BlockedUserMiddleware',
+    "users.middleware.BlockedUserMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -85,7 +85,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'Europe/Moscow'
+TIME_ZONE = "Europe/Moscow"
 
 USE_I18N = True
 
@@ -129,6 +129,6 @@ if CACHE_ENABLED:
     }
 
 AUTHENTICATION_BACKENDS = [
-    'users.backends.CustomAuthBackend',
-    'django.contrib.auth.backends.ModelBackend',
+    "users.backends.CustomAuthBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]

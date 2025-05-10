@@ -1,19 +1,22 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin,
+                                        UserPassesTestMixin)
 from django.shortcuts import get_object_or_404, redirect
-
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views import View
-
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   TemplateView, UpdateView)
 
-
 from mailing.forms import DispatchForm, MessageForm, RecipientForm
 from mailing.models import Dispatch, MailingAttempt, Message, Recipient
-from mailing.services import get_recipients_from_cache, get_recipients_for_user_from_cache, get_messages_from_cache, \
-    get_messages_for_user_from_cache, get_dispatches_from_cache, get_dispatches_for_user_from_cache
+from mailing.services import (get_dispatches_for_user_from_cache,
+                              get_dispatches_from_cache,
+                              get_messages_for_user_from_cache,
+                              get_messages_from_cache,
+                              get_recipients_for_user_from_cache,
+                              get_recipients_from_cache)
 
 
 class OwnerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -21,7 +24,7 @@ class OwnerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         obj = self.get_object()
         user = self.request.user
 
-        if hasattr(self, 'permission_required'):
+        if hasattr(self, "permission_required"):
             for perm in self.permission_required:
                 if user.has_perm(perm):
                     return True
@@ -30,8 +33,10 @@ class OwnerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def handle_no_permission(self):
         if self.request.user.is_authenticated:
             from django.contrib import messages
+
             messages.error(self.request, "У вас нет прав для просмотра этой страницы")
         from django.shortcuts import redirect
+
         return redirect("mailing:home")
 
 
@@ -43,14 +48,22 @@ class HomeView(TemplateView):
         user = self.request.user
 
         if user.is_authenticated:
-            if user.is_superuser or user.groups.filter(name='Managers').exists():
+            if user.is_superuser or user.groups.filter(name="Managers").exists():
                 context["total_dispatches"] = Dispatch.objects.count()
-                context["active_dispatches"] = Dispatch.objects.filter(status="started").count()
+                context["active_dispatches"] = Dispatch.objects.filter(
+                    status="started"
+                ).count()
                 context["unique_recipients"] = Recipient.objects.count()
             else:
-                context["total_dispatches"] = Dispatch.objects.filter(owner=user).count()
-                context["active_dispatches"] = Dispatch.objects.filter(owner=user, status="started").count()
-                context["unique_recipients"] = Recipient.objects.filter(owner=user).count()
+                context["total_dispatches"] = Dispatch.objects.filter(
+                    owner=user
+                ).count()
+                context["active_dispatches"] = Dispatch.objects.filter(
+                    owner=user, status="started"
+                ).count()
+                context["unique_recipients"] = Recipient.objects.filter(
+                    owner=user
+                ).count()
         else:
             context["total_dispatches"] = 0
             context["active_dispatches"] = 0
@@ -64,7 +77,6 @@ class RecipientCreateView(LoginRequiredMixin, CreateView):
     form_class = RecipientForm
     success_url = reverse_lazy("mailing:recipients_list")
 
-
     def form_valid(self, form):
         form.instance.owner = self.request.user
         return super().form_valid(form)
@@ -72,7 +84,7 @@ class RecipientCreateView(LoginRequiredMixin, CreateView):
 
 class RecipientDetailView(PermissionRequiredMixin, OwnerRequiredMixin, DetailView):
     model = Recipient
-    permission_required = ['mailing.can_view_recipient_detail']
+    permission_required = ["mailing.can_view_recipient_detail"]
 
 
 class RecipientUpdateView(OwnerRequiredMixin, UpdateView):
@@ -103,7 +115,6 @@ class RecipientListView(LoginRequiredMixin, ListView):
         if not request.user.is_authenticated:
             return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
-
 
 
 class MessagesListView(LoginRequiredMixin, ListView):
@@ -137,7 +148,8 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
 
 class MessageDetailView(PermissionRequiredMixin, OwnerRequiredMixin, DetailView):
     model = Message
-    permission_required = ['mailing.can_view_message_detail']
+    permission_required = ["mailing.can_view_message_detail"]
+
 
 class MessageUpdateView(OwnerRequiredMixin, UpdateView):
     model = Message
@@ -177,8 +189,8 @@ class DispatchCreateView(LoginRequiredMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        kwargs['is_update'] = False  # Указываем, что это создание
+        kwargs["request"] = self.request
+        kwargs["is_update"] = False  # Указываем, что это создание
         return kwargs
 
     def form_valid(self, form):
@@ -188,7 +200,7 @@ class DispatchCreateView(LoginRequiredMixin, CreateView):
 
 class DispatchDetailView(PermissionRequiredMixin, OwnerRequiredMixin, DetailView):
     model = Dispatch
-    permission_required = ['mailing.can_view_dispatch_detail']
+    permission_required = ["mailing.can_view_dispatch_detail"]
 
 
 class DispatchUpdateView(OwnerRequiredMixin, UpdateView):
@@ -199,13 +211,15 @@ class DispatchUpdateView(OwnerRequiredMixin, UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        kwargs['is_update'] = True
+        kwargs["request"] = self.request
+        kwargs["is_update"] = True
         return kwargs
 
     def form_valid(self, form):
         dispatch = form.save(commit=False)
-        old_status = Dispatch.objects.get(pk=dispatch.pk).status if dispatch.pk else None
+        old_status = (
+            Dispatch.objects.get(pk=dispatch.pk).status if dispatch.pk else None
+        )
 
         if dispatch.status == "started" and old_status != "started":
             dispatch.first_sending_datetime = timezone.now()
@@ -259,11 +273,11 @@ class MailingAttemptListView(LoginRequiredMixin, ListView):
 
 
 class FinishDispatchView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    permission_required = 'mailing.can_finish_dispatches'
+    permission_required = "mailing.can_finish_dispatches"
 
     def post(self, request, pk):
         dispatch = get_object_or_404(Dispatch, pk=pk)
-        dispatch.status = 'completed'
+        dispatch.status = "completed"
         dispatch.save()
         messages.success(request, f'Рассылка "{dispatch.message.theme}" остановлена.')
-        return redirect(reverse('mailing:dispatches_list'))
+        return redirect(reverse("mailing:dispatches_list"))

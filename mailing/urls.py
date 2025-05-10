@@ -1,16 +1,16 @@
 from django.urls import path
 
-
 from mailing.apps import MailingConfig
 from mailing.views import (DispatchCreateView, DispatchDeleteView,
                            DispatchDetailView, DispatchesListView,
-                           DispatchStatsView, DispatchUpdateView, HomeView,
+                           DispatchStatsView, DispatchUpdateView,
+                           FinishDispatchView, HomeView,
                            MailingAttemptListView, MessageCreateView,
                            MessageDeleteView, MessageDetailView,
                            MessagesListView, MessageUpdateView,
                            RecipientCreateView, RecipientDeleteView,
                            RecipientDetailView, RecipientListView,
-                           RecipientUpdateView, FinishDispatchView)
+                           RecipientUpdateView)
 
 app_name = MailingConfig.name
 
@@ -71,5 +71,5 @@ urlpatterns = [
     path(
         "dispatch/<int:pk>/stats/", DispatchStatsView.as_view(), name="dispatch_stats"
     ),
-    path('finish/<int:pk>/', FinishDispatchView.as_view(), name='finish_dispatch'),
+    path("finish/<int:pk>/", FinishDispatchView.as_view(), name="finish_dispatch"),
 ]

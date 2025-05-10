@@ -2,7 +2,8 @@ import secrets
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.contrib.auth.views import LoginView
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, redirect, render
@@ -45,16 +46,16 @@ class UserDetailView(DetailView):
 
 class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = User
-    template_name = 'users/users_list.html'
-    permission_required = 'users.can_view_users_list'
-    context_object_name = 'users'
+    template_name = "users/users_list.html"
+    permission_required = "users.can_view_users_list"
+    context_object_name = "users"
 
     def get_queryset(self):
         return User.objects.filter(is_staff=False)
 
 
 class ToggleUserBlockView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    permission_required = 'users.can_block_users'
+    permission_required = "users.can_block_users"
 
     def post(self, request, pk):
         user = get_object_or_404(User, pk=pk)
@@ -63,16 +64,20 @@ class ToggleUserBlockView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
         if user.is_blocked:
             from django.contrib.auth import logout
+
             if request.user == user:
                 logout(request)
-            Dispatch.objects.filter(owner=user, status='started').update(status='completed')
+            Dispatch.objects.filter(owner=user, status="started").update(
+                status="completed"
+            )
             if request.user == user:
-                return redirect(reverse('users:login') + '?blocked=true')
-            messages.success(request, f'Пользователь {user.email} заблокирован.')
+                return redirect(reverse("users:login") + "?blocked=true")
+            messages.success(request, f"Пользователь {user.email} заблокирован.")
         else:
-            messages.success(request, f'Пользователь {user.email} разблокирован.')
+            messages.success(request, f"Пользователь {user.email} разблокирован.")
 
-        return redirect(reverse('users:users_list'))
+        return redirect(reverse("users:users_list"))
+
 
 def email_verification(request, token):
     user = get_object_or_404(User, token=token)
@@ -97,16 +102,19 @@ def edit_profile(request):
 
 
 class CustomLoginView(LoginView):
-    template_name = 'users/login.html'
+    template_name = "users/login.html"
 
     def form_invalid(self, form):
-        username = form.data.get('username')
-        password = form.data.get('password')
+        username = form.data.get("username")
+        password = form.data.get("password")
 
         try:
             user = User.objects.get(email=username)
             if user.is_blocked:
-                form.add_error(None, "blocked:Ваш аккаунт заблокирован. Обратитесь к администратору.")
+                form.add_error(
+                    None,
+                    "blocked:Ваш аккаунт заблокирован. Обратитесь к администратору.",
+                )
                 return self.render_to_response(self.get_context_data(form=form))
         except User.DoesNotExist:
             pass

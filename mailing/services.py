@@ -1,8 +1,7 @@
 from django.core.cache import cache
 
-
 from config.settings import CACHE_ENABLED
-from mailing.models import Recipient, Message, Dispatch
+from mailing.models import Dispatch, Message, Recipient
 
 
 def get_recipients_from_cache():
@@ -55,6 +54,7 @@ def get_messages_for_user_from_cache(user):
     messages = Message.objects.filter(owner=user)
     cache.set(key, messages)
     return messages
+
 
 def get_dispatches_from_cache():
     """Получает список всех сообщений из кеша"""

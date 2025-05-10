@@ -1,4 +1,4 @@
-from django.contrib.auth.views import (LoginView, LogoutView,
+from django.contrib.auth.views import (LogoutView,
                                        PasswordResetCompleteView,
                                        PasswordResetConfirmView,
                                        PasswordResetDoneView,
@@ -6,8 +6,9 @@ from django.contrib.auth.views import (LoginView, LogoutView,
 from django.urls import path, reverse_lazy
 
 from users.apps import UsersConfig
-from users.views import (UserCreateView, UserDetailView, edit_profile,
-                         email_verification, UserListView, ToggleUserBlockView, CustomLoginView)
+from users.views import (CustomLoginView, ToggleUserBlockView, UserCreateView,
+                         UserDetailView, UserListView, edit_profile,
+                         email_verification)
 
 app_name = UsersConfig.name
 
@@ -52,6 +53,6 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
-    path('users/', UserListView.as_view(), name='users_list'),
-    path('toggle-block/<int:pk>/', ToggleUserBlockView.as_view(), name='toggle_block'),
+    path("users/", UserListView.as_view(), name="users_list"),
+    path("toggle-block/<int:pk>/", ToggleUserBlockView.as_view(), name="toggle_block"),
 ]
