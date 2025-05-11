@@ -2,6 +2,10 @@ from django import forms
 from django.forms import ModelForm
 
 from mailing.models import Dispatch, Message, Recipient
+from mailing.services import (get_messages_for_user_from_cache,
+                              get_messages_from_cache,
+                              get_recipients_for_user_from_cache,
+                              get_recipients_from_cache)
 
 
 class StyleFormMixin:
@@ -58,12 +62,20 @@ class DispatchForm(StyleFormMixin, ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.request:
-            self.fields["message"].queryset = Message.objects.filter(
-                owner=self.request.user
-            )
-            self.fields["recipient"].queryset = Recipient.objects.filter(
-                owner=self.request.user
-            )
+            if self.request.user.is_superuser:
+                self.fields["message"].queryset = get_messages_from_cache()
+            else:
+                self.fields["message"].queryset = get_messages_for_user_from_cache(
+                    self.request.user
+                )
+
+            # Для получателей
+            if self.request.user.is_superuser:
+                self.fields["recipient"].queryset = get_recipients_from_cache()
+            else:
+                self.fields["recipient"].queryset = get_recipients_for_user_from_cache(
+                    self.request.user
+                )
 
         if is_update:
             self.fields["status"].widget.attrs.update({"class": "form-control"})

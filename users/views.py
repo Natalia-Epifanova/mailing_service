@@ -18,6 +18,8 @@ from users.models import User
 
 
 class UserCreateView(CreateView):
+    """Представление для добавления нового пользователя"""
+
     model = User
     form_class = UserRegisterForm
     success_url = reverse_lazy("users:login")
@@ -46,11 +48,15 @@ class UserCreateView(CreateView):
 
 
 class UserDetailView(DetailView):
+    """Представление для просмотра информации о пользователе"""
+
     model = User
     template_name = "users/profile_detail.html"
 
 
 class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    """Представление для просмотра списка пользователей"""
+
     model = User
     template_name = "users/users_list.html"
     permission_required = "users.can_view_users_list"
@@ -61,8 +67,11 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 
 class ToggleUserBlockView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    """Представление для блокировки пользователя"""
+
     permission_required = "users.can_block_users"
 
+    @staticmethod
     def post(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         user.is_blocked = not user.is_blocked
@@ -86,6 +95,7 @@ class ToggleUserBlockView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 
 def email_verification(request, token):
+    """Функция для подтверждения email"""
     user = get_object_or_404(User, token=token)
     user.is_active = True
     user.token = ""
@@ -98,6 +108,7 @@ def email_verification(request, token):
 
 @login_required
 def edit_profile(request):
+    """Функция для редактирования профиля пользователя"""
     user = request.user
     if request.method == "POST":
         form = UserProfileForm(request.POST, request.FILES, instance=user)
@@ -111,6 +122,8 @@ def edit_profile(request):
 
 
 class CustomLoginView(LoginView):
+    """Представление для входа пользователя в систему"""
+
     template_name = "users/login.html"
 
     def form_invalid(self, form):

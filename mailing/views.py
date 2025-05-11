@@ -23,7 +23,6 @@ from mailing.services import (get_dispatches_for_user_from_cache,
                               get_recipients_for_user_from_cache,
                               get_recipients_from_cache)
 
-
 logger = logging.getLogger("mailing")
 
 
@@ -35,12 +34,15 @@ class OwnerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         obj = self.get_object()
         user = self.request.user
-
+        if user.is_superuser:
+            logger.debug(f"Superuser {user} bypassed ownership check for {obj}")
+            return True
         if hasattr(self, "permission_required"):
             for perm in self.permission_required:
                 if user.has_perm(perm):
                     logger.debug(f"User {user} has permission {perm} for {obj}")
                     return True
+
         if obj.owner == user:
             logger.debug(f"User {user} is owner of {obj}")
             return True
@@ -123,6 +125,9 @@ class RecipientDetailView(PermissionRequiredMixin, OwnerRequiredMixin, DetailVie
     model = Recipient
     permission_required = ["mailing.can_view_recipient_detail"]
 
+    def has_permission(self):
+        return self.request.user.is_superuser or super().has_permission()
+
 
 class RecipientUpdateView(OwnerRequiredMixin, UpdateView):
     """Представление для редактирования получателя"""
@@ -141,6 +146,9 @@ class RecipientUpdateView(OwnerRequiredMixin, UpdateView):
         )
         return super().form_invalid(form)
 
+    def has_permission(self):
+        return self.request.user.is_superuser or super().has_permission()
+
 
 class RecipientDeleteView(OwnerRequiredMixin, DeleteView):
     """Представление для удаления получателя"""
@@ -152,6 +160,9 @@ class RecipientDeleteView(OwnerRequiredMixin, DeleteView):
         logger.info(f"Recipient deleted by {request.user}: {self.get_object()}")
         return super().delete(request, *args, **kwargs)
 
+    def has_permission(self):
+        return self.request.user.is_superuser or super().has_permission()
+
 
 class RecipientListView(LoginRequiredMixin, ListView):
     """Представление для просмотра списка получателей"""
@@ -162,7 +173,7 @@ class RecipientListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.has_perm("mailing.can_view_all_recipients"):
+        if user.has_perm("mailing.can_view_all_recipients") or user.is_superuser:
             logger.debug(f"Loading all recipients for {user}")
             return get_recipients_from_cache()
         else:
@@ -188,7 +199,7 @@ class MessagesListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.has_perm("mailing.can_view_all_messages"):
+        if user.has_perm("mailing.can_view_all_messages") or user.is_superuser:
             logger.debug(f"Loading all messages for {user}")
             return get_messages_from_cache()
         else:
@@ -230,6 +241,9 @@ class MessageDetailView(PermissionRequiredMixin, OwnerRequiredMixin, DetailView)
     model = Message
     permission_required = ["mailing.can_view_message_detail"]
 
+    def has_permission(self):
+        return self.request.user.is_superuser or super().has_permission()
+
 
 class MessageUpdateView(OwnerRequiredMixin, UpdateView):
     """Представление для редактирования сообщения"""
@@ -246,6 +260,9 @@ class MessageUpdateView(OwnerRequiredMixin, UpdateView):
         logger.warning(f"Invalid message update by {self.request.user}: {form.errors}")
         return super().form_invalid(form)
 
+    def has_permission(self):
+        return self.request.user.is_superuser or super().has_permission()
+
 
 class MessageDeleteView(OwnerRequiredMixin, DeleteView):
     """Представление для удаления сообщения"""
@@ -257,6 +274,9 @@ class MessageDeleteView(OwnerRequiredMixin, DeleteView):
         logger.info(f"Message deleted by {request.user}: {self.get_object()}")
         return super().delete(request, *args, **kwargs)
 
+    def has_permission(self):
+        return self.request.user.is_superuser or super().has_permission()
+
 
 class DispatchesListView(LoginRequiredMixin, ListView):
     """Представление для просмотра списка доступных рассылок"""
@@ -267,7 +287,7 @@ class DispatchesListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.has_perm("mailing.can_view_all_dispatches"):
+        if user.has_perm("mailing.can_view_all_dispatches") or user.is_superuser:
             logger.debug(f"Loading all dispatches for {user}")
             return get_dispatches_from_cache()
         else:
@@ -309,12 +329,18 @@ class DispatchCreateView(LoginRequiredMixin, CreateView):
         )
         return super().form_invalid(form)
 
+    def has_permission(self):
+        return self.request.user.is_superuser or super().has_permission()
+
 
 class DispatchDetailView(PermissionRequiredMixin, OwnerRequiredMixin, DetailView):
     """Представление для просмотра информации о рассылке"""
 
     model = Dispatch
     permission_required = ["mailing.can_view_dispatch_detail"]
+
+    def has_permission(self):
+        return self.request.user.is_superuser or super().has_permission()
 
 
 class DispatchUpdateView(OwnerRequiredMixin, UpdateView):
@@ -355,6 +381,9 @@ class DispatchUpdateView(OwnerRequiredMixin, UpdateView):
         )
         return super().form_invalid(form)
 
+    def has_permission(self):
+        return self.request.user.is_superuser or super().has_permission()
+
 
 class DispatchDeleteView(OwnerRequiredMixin, DeleteView):
     """Представление для удаления рассылки"""
@@ -365,6 +394,9 @@ class DispatchDeleteView(OwnerRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         logger.info(f"Dispatch deleted by {request.user}: {self.get_object()}")
         return super().delete(request, *args, **kwargs)
+
+    def has_permission(self):
+        return self.request.user.is_superuser or super().has_permission()
 
 
 class DispatchStatsView(OwnerRequiredMixin, DetailView):
@@ -412,6 +444,9 @@ class DispatchStatsView(OwnerRequiredMixin, DetailView):
             context["last_attempts"] = []
 
         return context
+
+    def has_permission(self):
+        return self.request.user.is_superuser or super().has_permission()
 
 
 class MailingAttemptListView(LoginRequiredMixin, ListView):

@@ -26,11 +26,11 @@
             <td>{{ message.content|truncatechars:50 }}</td>
             <td class="text-end">
                 <div class="btn-group" role="group">
-                    {% if perms.mailing.can_view_message_detail or user == message.owner %}
+                    {% if perms.mailing.can_view_message_detail or user == message.owner or user.is_superuser%}
                     <a class="btn btn-outline-primary"
                        href="{% url 'mailing:message_detail' message.pk %}">Подробнее</a>
                     {% endif %}
-                    {% if user == message.owner %}
+                    {% if user == message.owner or user.is_superuser %}
                     <a class="btn btn-outline-secondary"
                        href="{% url 'mailing:message_update' message.pk %}">Редактировать</a>
                     <a class="btn btn-outline-danger" href="{% url 'mailing:message_delete' message.pk %}">Удалить</a>
