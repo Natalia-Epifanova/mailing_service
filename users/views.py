@@ -40,7 +40,7 @@ class UserCreateView(CreateView):
         messages.success(
             self.request,
             "На ваш email была отправлена ссылка для подтверждения. "
-            "Пожалуйста, проверьте вашу почту (включая папку 'Спам')."
+            "Пожалуйста, проверьте вашу почту (включая папку 'Спам').",
         )
         return super().form_valid(form)
 
@@ -90,7 +90,9 @@ def email_verification(request, token):
     user.is_active = True
     user.token = ""
     user.save()
-    messages.success(request, "Ваш email успешно подтвержден! Теперь вы можете войти в систему.")
+    messages.success(
+        request, "Ваш email успешно подтвержден! Теперь вы можете войти в систему."
+    )
     return redirect(reverse("users:login"))
 
 

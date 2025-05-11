@@ -188,4 +188,3 @@ class MailingAttempt(models.Model):
         permissions = [
             ("can_view_all_mailing_attempts", "Can view all mailing attempts"),
         ]
-

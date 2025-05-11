@@ -1,4 +1,5 @@
 import logging
+
 from django.contrib import messages
 from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin,
@@ -15,19 +16,22 @@ from mailing.forms import DispatchForm, MessageForm, RecipientForm
 from mailing.models import Dispatch, MailingAttempt, Message, Recipient
 from mailing.services import (get_dispatches_for_user_from_cache,
                               get_dispatches_from_cache,
+                              get_mailing_attempts_for_user_from_cache,
+                              get_mailing_attempts_from_cache,
                               get_messages_for_user_from_cache,
                               get_messages_from_cache,
                               get_recipients_for_user_from_cache,
-                              get_recipients_from_cache,
-                              get_mailing_attempts_from_cache,
-                              get_mailing_attempts_for_user_from_cache)
-from users.models import User
+                              get_recipients_from_cache)
 
-logger = logging.getLogger('mailing')
+
+logger = logging.getLogger("mailing")
+
 
 class OwnerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    """ Миксин для проверки доступа """
+    """Миксин для проверки доступа"""
+
     request: HttpRequest
+
     def test_func(self):
         obj = self.get_object()
         user = self.request.user
@@ -52,7 +56,8 @@ class OwnerRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class HomeView(TemplateView):
-    """ Представление для отображения главной страницы"""
+    """Представление для отображения главной страницы"""
+
     template_name = "mailing/home.html"
 
     def get_context_data(self, **kwargs):
@@ -94,7 +99,8 @@ class HomeView(TemplateView):
 
 
 class RecipientCreateView(LoginRequiredMixin, CreateView):
-    """ Представление для добавления нового получателя"""
+    """Представление для добавления нового получателя"""
+
     model = Recipient
     form_class = RecipientForm
     success_url = reverse_lazy("mailing:recipients_list")
@@ -105,18 +111,22 @@ class RecipientCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        logger.warning(f"Invalid recipient form submission by {self.request.user}: {form.errors}")
+        logger.warning(
+            f"Invalid recipient form submission by {self.request.user}: {form.errors}"
+        )
         return super().form_invalid(form)
 
 
 class RecipientDetailView(PermissionRequiredMixin, OwnerRequiredMixin, DetailView):
-    """ Представление для просмотра информации о получателе"""
+    """Представление для просмотра информации о получателе"""
+
     model = Recipient
     permission_required = ["mailing.can_view_recipient_detail"]
 
 
 class RecipientUpdateView(OwnerRequiredMixin, UpdateView):
-    """ Представление для редактирования получателя"""
+    """Представление для редактирования получателя"""
+
     model = Recipient
     form_class = RecipientForm
     success_url = reverse_lazy("mailing:recipients_list")
@@ -126,12 +136,15 @@ class RecipientUpdateView(OwnerRequiredMixin, UpdateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        logger.warning(f"Invalid recipient update by {self.request.user}: {form.errors}")
+        logger.warning(
+            f"Invalid recipient update by {self.request.user}: {form.errors}"
+        )
         return super().form_invalid(form)
 
 
 class RecipientDeleteView(OwnerRequiredMixin, DeleteView):
-    """ Представление для удаления получателя"""
+    """Представление для удаления получателя"""
+
     model = Recipient
     success_url = reverse_lazy("mailing:recipients_list")
 
@@ -141,7 +154,8 @@ class RecipientDeleteView(OwnerRequiredMixin, DeleteView):
 
 
 class RecipientListView(LoginRequiredMixin, ListView):
-    """ Представление для просмотра списка получателей"""
+    """Представление для просмотра списка получателей"""
+
     model = Recipient
     template_name = "mailing/recipients_list.html"
     context_object_name = "recipients"
@@ -158,13 +172,16 @@ class RecipientListView(LoginRequiredMixin, ListView):
     def dispatch(self, request, *args, **kwargs):
         """Обработка неавторизованных пользователей"""
         if not request.user.is_authenticated:
-            logger.warning("Anonymous user does not have access to view the page recipients_list")
+            logger.warning(
+                "Anonymous user does not have access to view the page recipients_list"
+            )
             return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
 
 
 class MessagesListView(LoginRequiredMixin, ListView):
-    """ Представление для просмотра списка доступных сообщений"""
+    """Представление для просмотра списка доступных сообщений"""
+
     model = Message
     template_name = "mailing/messages_list.html"
     context_object_name = "messages"
@@ -181,13 +198,16 @@ class MessagesListView(LoginRequiredMixin, ListView):
     def dispatch(self, request, *args, **kwargs):
         """Обработка неавторизованных пользователей"""
         if not request.user.is_authenticated:
-            logger.warning("Anonymous user does not have access to view the page messages_list")
+            logger.warning(
+                "Anonymous user does not have access to view the page messages_list"
+            )
             return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
 
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
-    """ Представление для добавления нового сообщения"""
+    """Представление для добавления нового сообщения"""
+
     model = Message
     form_class = MessageForm
     success_url = reverse_lazy("mailing:messages_list")
@@ -198,17 +218,22 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        logger.warning(f"Invalid message form submission by {self.request.user}: {form.errors}")
+        logger.warning(
+            f"Invalid message form submission by {self.request.user}: {form.errors}"
+        )
         return super().form_invalid(form)
 
+
 class MessageDetailView(PermissionRequiredMixin, OwnerRequiredMixin, DetailView):
-    """ Представление для просмотра информации о сообщении"""
+    """Представление для просмотра информации о сообщении"""
+
     model = Message
     permission_required = ["mailing.can_view_message_detail"]
 
 
 class MessageUpdateView(OwnerRequiredMixin, UpdateView):
-    """ Представление для редактирования сообщения"""
+    """Представление для редактирования сообщения"""
+
     model = Message
     form_class = MessageForm
     success_url = reverse_lazy("mailing:messages_list")
@@ -223,7 +248,8 @@ class MessageUpdateView(OwnerRequiredMixin, UpdateView):
 
 
 class MessageDeleteView(OwnerRequiredMixin, DeleteView):
-    """ Представление для удаления сообщения"""
+    """Представление для удаления сообщения"""
+
     model = Message
     success_url = reverse_lazy("mailing:messages_list")
 
@@ -233,7 +259,8 @@ class MessageDeleteView(OwnerRequiredMixin, DeleteView):
 
 
 class DispatchesListView(LoginRequiredMixin, ListView):
-    """ Представление для просмотра списка доступных рассылок"""
+    """Представление для просмотра списка доступных рассылок"""
+
     model = Dispatch
     template_name = "mailing/dispatches_list.html"
     context_object_name = "dispatches"
@@ -250,13 +277,16 @@ class DispatchesListView(LoginRequiredMixin, ListView):
     def dispatch(self, request, *args, **kwargs):
         """Обработка неавторизованных пользователей"""
         if not request.user.is_authenticated:
-            logger.warning("Anonymous user does not have access to view the page dispatches_list")
+            logger.warning(
+                "Anonymous user does not have access to view the page dispatches_list"
+            )
             return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
 
 
 class DispatchCreateView(LoginRequiredMixin, CreateView):
-    """ Представление для добавления новой рассылки"""
+    """Представление для добавления новой рассылки"""
+
     model = Dispatch
     form_class = DispatchForm
     success_url = reverse_lazy("mailing:dispatches_list")
@@ -274,18 +304,22 @@ class DispatchCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        logger.warning(f"Invalid dispatch form submission by {self.request.user}: {form.errors}")
+        logger.warning(
+            f"Invalid dispatch form submission by {self.request.user}: {form.errors}"
+        )
         return super().form_invalid(form)
 
 
 class DispatchDetailView(PermissionRequiredMixin, OwnerRequiredMixin, DetailView):
-    """ Представление для просмотра информации о рассылке"""
+    """Представление для просмотра информации о рассылке"""
+
     model = Dispatch
     permission_required = ["mailing.can_view_dispatch_detail"]
 
 
 class DispatchUpdateView(OwnerRequiredMixin, UpdateView):
-    """ Представление для редактирования рассылки"""
+    """Представление для редактирования рассылки"""
+
     model = Dispatch
     form_class = DispatchForm
     success_url = reverse_lazy("mailing:dispatches_list")
@@ -316,12 +350,15 @@ class DispatchUpdateView(OwnerRequiredMixin, UpdateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        logger.warning(f"Invalid dispatch form submission by {self.request.user}: {form.errors}")
+        logger.warning(
+            f"Invalid dispatch form submission by {self.request.user}: {form.errors}"
+        )
         return super().form_invalid(form)
 
 
 class DispatchDeleteView(OwnerRequiredMixin, DeleteView):
-    """ Представление для удаления рассылки"""
+    """Представление для удаления рассылки"""
+
     model = Dispatch
     success_url = reverse_lazy("mailing:dispatches_list")
 
@@ -332,6 +369,7 @@ class DispatchDeleteView(OwnerRequiredMixin, DeleteView):
 
 class DispatchStatsView(OwnerRequiredMixin, DetailView):
     """Представление для отображения статистики по рассылке"""
+
     model = Dispatch
     template_name = "mailing/dispatch_stats.html"
 
@@ -344,18 +382,26 @@ class DispatchStatsView(OwnerRequiredMixin, DetailView):
 
             context["total_attempts"] = attempts.count()
             context["success_attempts"] = attempts.filter(status="success").count()
-            context["failed_attempts"] = attempts.filter(status="unsuccessfully").count()
+            context["failed_attempts"] = attempts.filter(
+                status="unsuccessfully"
+            ).count()
             context["success_rate"] = (
-                round((context["success_attempts"] / context["total_attempts"]) * 100, 2)
+                round(
+                    (context["success_attempts"] / context["total_attempts"]) * 100, 2
+                )
                 if context["total_attempts"] > 0
                 else 0
             )
             context["messages_sent"] = (
-                    context["success_attempts"] * dispatch.recipient.count()
+                context["success_attempts"] * dispatch.recipient.count()
             )
-            context["last_attempts"] = attempts.order_by("-mailing_attempt_datetime")[:5]
+            context["last_attempts"] = attempts.order_by("-mailing_attempt_datetime")[
+                :5
+            ]
 
-            logger.debug(f"Stats loaded for dispatch {dispatch.pk} by {self.request.user}")
+            logger.debug(
+                f"Stats loaded for dispatch {dispatch.pk} by {self.request.user}"
+            )
         except Exception as e:
             logger.error(f"Error loading stats for dispatch {dispatch.pk}: {str(e)}")
             context["total_attempts"] = 0
@@ -385,14 +431,15 @@ class MailingAttemptListView(LoginRequiredMixin, ListView):
     def dispatch(self, request, *args, **kwargs):
         """Обработка неавторизованных пользователей"""
         if not request.user.is_authenticated:
-            logger.warning("Anonymous user does not have access to view the page mailing_attempts_list")
+            logger.warning(
+                "Anonymous user does not have access to view the page mailing_attempts_list"
+            )
             return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
 
 
 class FinishDispatchView(LoginRequiredMixin, PermissionRequiredMixin, View):
     permission_required = "mailing.can_finish_dispatches"
-
 
     @staticmethod
     def post(request, pk):

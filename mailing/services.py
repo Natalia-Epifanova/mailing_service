@@ -1,7 +1,7 @@
 from django.core.cache import cache
 
 from config.settings import CACHE_ENABLED
-from mailing.models import Dispatch, Message, Recipient, MailingAttempt
+from mailing.models import Dispatch, MailingAttempt, Message, Recipient
 
 
 def get_recipients_from_cache():
@@ -80,6 +80,7 @@ def get_dispatches_for_user_from_cache(user):
     dispatches = Dispatch.objects.filter(owner=user)
     cache.set(key, dispatches)
     return dispatches
+
 
 def get_mailing_attempts_from_cache():
     """Получает список всех попыток рассылок из кеша"""
