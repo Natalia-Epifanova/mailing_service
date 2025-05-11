@@ -178,7 +178,14 @@ class MailingAttempt(models.Model):
         verbose_name="Рассылка",
         null=True,
     )
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="Владелец", blank=True, null=True
+    )
 
     class Meta:
         verbose_name = "Попытка рассылки"
         verbose_name_plural = "Попытки рассылок"
+        permissions = [
+            ("can_view_all_mailing_attempts", "Can view all mailing attempts"),
+        ]
+

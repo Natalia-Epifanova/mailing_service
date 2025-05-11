@@ -1,8 +1,5 @@
 from django.core.management import BaseCommand
 from django.contrib.auth.models import Group, Permission
-from django.contrib.contenttypes.models import ContentType
-from mailing.models import Dispatch, Message, Recipient
-from users.models import User
 
 
 class Command(BaseCommand):
@@ -20,6 +17,11 @@ class Command(BaseCommand):
             Permission.objects.get(codename='can_view_all_recipients'),
             Permission.objects.get(codename='can_view_all_messages'),
             Permission.objects.get(codename='can_view_all_dispatches'),
+            Permission.objects.get(codename='can_view_all_mailing_attempts'),
+            Permission.objects.get(codename="can_view_recipient_detail"),
+            Permission.objects.get(codename='can_view_message_detail'),
+            Permission.objects.get(codename='can_view_dispatch_detail'),
+            Permission.objects.get(codename='can_view_all_mailing_attempts'),
             Permission.objects.get(codename='can_view_users_list'),
 
             Permission.objects.get(codename='can_block_users'),

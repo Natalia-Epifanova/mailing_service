@@ -119,7 +119,7 @@ EMAIL_USE_SSL = True
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-CACHE_ENABLED = False
+CACHE_ENABLED = True
 if CACHE_ENABLED:
     CACHES = {
         "default": {
@@ -132,3 +132,41 @@ AUTHENTICATION_BACKENDS = [
     "users.backends.CustomAuthBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/mailing.log',
+            'encoding': 'utf-8',
+            'formatter': 'verbose'
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+    },
+    'loggers': {
+        'mailing': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+DEFAULT_CHARSET = 'utf-8'
+FILE_CHARSET = 'utf-8'

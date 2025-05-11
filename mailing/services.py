@@ -1,7 +1,7 @@
 from django.core.cache import cache
 
 from config.settings import CACHE_ENABLED
-from mailing.models import Dispatch, Message, Recipient
+from mailing.models import Dispatch, Message, Recipient, MailingAttempt
 
 
 def get_recipients_from_cache():
@@ -18,7 +18,7 @@ def get_recipients_from_cache():
 
 
 def get_recipients_for_user_from_cache(user):
-    """Получает список опубликованных продуктов из кеша"""
+    """Получает список всех получателей из кеша для владельца"""
     if not CACHE_ENABLED:
         return Recipient.objects.filter(owner=user)
     key = "recipients_list_for_user"
@@ -44,7 +44,7 @@ def get_messages_from_cache():
 
 
 def get_messages_for_user_from_cache(user):
-    """Получает список опубликованных продуктов из кеша"""
+    """Получает список всех сообщений из кеша для владельца"""
     if not CACHE_ENABLED:
         return Message.objects.filter(owner=user)
     key = "messages_list_for_user"
@@ -57,7 +57,7 @@ def get_messages_for_user_from_cache(user):
 
 
 def get_dispatches_from_cache():
-    """Получает список всех сообщений из кеша"""
+    """Получает список всех рассылок из кеша"""
     if not CACHE_ENABLED:
         return Dispatch.objects.all()
     key = "dispatches_list"
@@ -70,7 +70,7 @@ def get_dispatches_from_cache():
 
 
 def get_dispatches_for_user_from_cache(user):
-    """Получает список опубликованных продуктов из кеша"""
+    """Получает список всех рассылок из кеша для владельца"""
     if not CACHE_ENABLED:
         return Dispatch.objects.filter(owner=user)
     key = "dispatches_list_for_user"
@@ -80,3 +80,28 @@ def get_dispatches_for_user_from_cache(user):
     dispatches = Dispatch.objects.filter(owner=user)
     cache.set(key, dispatches)
     return dispatches
+
+def get_mailing_attempts_from_cache():
+    """Получает список всех попыток рассылок из кеша"""
+    if not CACHE_ENABLED:
+        return MailingAttempt.objects.all()
+    key = "mailing_attempts_list"
+    mailing_attempts = cache.get(key)
+    if mailing_attempts is not None:
+        return mailing_attempts
+    mailing_attempts = MailingAttempt.objects.all()
+    cache.set(key, mailing_attempts)
+    return mailing_attempts
+
+
+def get_mailing_attempts_for_user_from_cache(user):
+    """Получает список всех попыток рассылок из кеша для владельца"""
+    if not CACHE_ENABLED:
+        return MailingAttempt.objects.filter(owner=user)
+    key = "mailing_attempts_list_for_user"
+    mailing_attempts = cache.get(key)
+    if mailing_attempts is not None:
+        return mailing_attempts
+    mailing_attempts = MailingAttempt.objects.filter(owner=user)
+    cache.set(key, mailing_attempts)
+    return mailing_attempts
