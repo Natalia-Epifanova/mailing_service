@@ -17,13 +17,28 @@ from users.models import User
 
 
 class UserCreateView(CreateView):
-    """Представление для добавления нового пользователя"""
+    """
+    Представление для регистрации нового пользователя с подтверждением по email.
+    Attributes:
+        model (User): Модель пользователя.
+        form_class (Form): Класс формы UserRegisterForm.
+        success_url (str): URL для перенаправления после успешной регистрации.
+    """
 
     model = User
     form_class = UserRegisterForm
     success_url = reverse_lazy("users:login")
 
     def form_valid(self, form):
+        """
+        Обрабатывает валидную форму регистрации.
+        Создает пользователя, генерирует токен подтверждения,
+        отправляет email с ссылкой для подтверждения.
+        Args:
+            form (UserRegisterForm): Валидная форма регистрации.
+        Returns:
+            HttpResponse: Результат работы родительского метода.
+        """
         user = form.save()
         user.is_active = False
         token = secrets.token_hex(16)
@@ -47,14 +62,27 @@ class UserCreateView(CreateView):
 
 
 class UserDetailView(DetailView):
-    """Представление для просмотра информации о пользователе"""
+    """
+    Представление для просмотра профиля пользователя.
+    Attributes:
+        model (User): Модель пользователя.
+        template_name (str): Путь к шаблону страницы профиля.
+    """
 
     model = User
     template_name = "users/profile_detail.html"
 
 
 class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
-    """Представление для просмотра списка пользователей"""
+    """
+    Представление для просмотра списка пользователей.
+    Требует права can_view_users_list.
+    Attributes:
+        model (User): Модель пользователя.
+        template_name (str): Путь к шаблону списка пользователей.
+        permission_required (str): Необходимое разрешение.
+        context_object_name (str): Имя переменной контекста.
+    """
 
     model = User
     template_name = "users/users_list.html"
@@ -62,16 +90,33 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     context_object_name = "users"
 
     def get_queryset(self):
+        """
+        Возвращает queryset обычных пользователей (не персонала).
+        Returns:
+            QuerySet: Список пользователей с is_staff=False.
+        """
         return User.objects.filter(is_staff=False)
 
 
 class ToggleUserBlockView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    """Представление для блокировки пользователя"""
+    """
+    Представление для блокировки/разблокировки пользователя.
+    Требует права can_block_users. При блокировке также завершает
+    все активные рассылки пользователя.
+    """
 
     permission_required = "users.can_block_users"
 
     @staticmethod
     def post(self, request, pk):
+        """
+        Обрабатывает POST запрос для блокировки/разблокировки.
+        Args:
+            request (HttpRequest): Входящий запрос.
+            pk (int): ID пользователя для блокировки/разблокировки.
+        Returns:
+            HttpResponseRedirect: Перенаправление на список пользователей.
+        """
         user = get_object_or_404(User, pk=pk)
         user.is_blocked = not user.is_blocked
         user.save()
@@ -94,7 +139,14 @@ class ToggleUserBlockView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 
 def email_verification(request, token):
-    """Функция для подтверждения email"""
+    """
+    Подтверждение email пользователя по токену.
+    Args:
+        request (HttpRequest): Входящий запрос.
+        token (str): Токен подтверждения из email.
+    Returns:
+        HttpResponseRedirect: Перенаправление на страницу входа.
+    """
     user = get_object_or_404(User, token=token)
     user.is_active = True
     user.token = ""
@@ -107,7 +159,13 @@ def email_verification(request, token):
 
 @login_required
 def edit_profile(request):
-    """Функция для редактирования профиля пользователя"""
+    """
+    Редактирование профиля пользователя.
+    Args:
+        request (HttpRequest): Входящий запрос.
+    Returns:
+        HttpResponse: Страница редактирования профиля или перенаправление на главную.
+    """
     user = request.user
     if request.method == "POST":
         form = UserProfileForm(request.POST, request.FILES, instance=user)
@@ -121,11 +179,22 @@ def edit_profile(request):
 
 
 class CustomLoginView(LoginView):
-    """Представление для входа пользователя в систему"""
+    """
+    Кастомное представление для входа с проверкой блокировки.
+    Attributes:
+        template_name (str): Путь к шаблону страницы входа.
+    """
 
     template_name = "users/login.html"
 
     def form_invalid(self, form):
+        """
+        Обрабатывает невалидную форму входа с проверкой блокировки.
+        Args:
+            form (AuthenticationForm): Невалидная форма входа.
+        Returns:
+            HttpResponse: Страница входа с ошибками.
+        """
         username = form.data.get("username")
         password = form.data.get("password")
 

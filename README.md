@@ -16,7 +16,7 @@
 - ```source venv/bin/activate```  # Linux/Mac
 - ```venv\Scripts\activate```  # Windows
 4. Выполнить миграции: ```python manage.py migrate```
-5. Создать суперпользователя: ```python manage.py csu```
+5. Создать суперпользователя: ```python manage.py create_superuser```
 6. Запустить сервер: ```python manage.py runserver```
 
 ## 📌 Основные возможности

@@ -3,9 +3,21 @@ from django.core.management import BaseCommand
 
 
 class Command(BaseCommand):
+    """
+    Команда для создания группы менеджеров с набором разрешений.
+    Назначает группе "Менеджеры" права для:
+    - Просмотра всех объектов (получатели, сообщения, рассылки)
+    - Управления пользователями
+    - Завершения рассылок
+    - Просмотра статистики
+    Пример использования:
+        python manage.py create_managers_group
+    """
+
     help = "Creates Managers group with permissions"
 
     def handle(self, *args, **options):
+        """Создает группу и назначает разрешения."""
         managers_group, created = Group.objects.get_or_create(name="Менеджеры")
 
         if created:
