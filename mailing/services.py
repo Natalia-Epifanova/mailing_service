@@ -5,7 +5,12 @@ from mailing.models import Dispatch, MailingAttempt, Message, Recipient
 
 
 def get_recipients_from_cache():
-    """Получает список всех получателей из кеша"""
+    """
+    Получает список всех получателей из кеша.
+    Если кеш отключен, возвращает всех получателей из базы данных.
+    Returns:
+        QuerySet: Список всех получателей.
+    """
     if not CACHE_ENABLED:
         return Recipient.objects.all()
     key = "recipients_list"
@@ -18,7 +23,14 @@ def get_recipients_from_cache():
 
 
 def get_recipients_for_user_from_cache(user):
-    """Получает список всех получателей из кеша для владельца"""
+    """
+    Получает список всех получателей из кеша для указанного владельца.
+    Если кеш отключен, возвращает получателей, принадлежащих указанному пользователю.
+    Args:
+        user (User): Пользователь, для которого запрашиваются получатели.
+    Returns:
+        QuerySet: Список получателей, принадлежащих указанному пользователю.
+    """
     if not CACHE_ENABLED:
         return Recipient.objects.filter(owner=user)
     key = "recipients_list_for_user"
@@ -31,7 +43,12 @@ def get_recipients_for_user_from_cache(user):
 
 
 def get_messages_from_cache():
-    """Получает список всех сообщений из кеша"""
+    """
+    Получает список всех сообщений из кеша.
+    Если кеш отключен, возвращает все сообщения из базы данных.
+    Returns:
+        QuerySet: Список всех сообщений.
+    """
     if not CACHE_ENABLED:
         return Message.objects.all()
     key = "messages_list"
@@ -44,7 +61,14 @@ def get_messages_from_cache():
 
 
 def get_messages_for_user_from_cache(user):
-    """Получает список всех сообщений из кеша для владельца"""
+    """
+    Получает список всех сообщений из кеша для указанного владельца.
+    Если кеш отключен, возвращает сообщения, принадлежащих указанному пользователю.
+    Args:
+        user (User): Пользователь, для которого запрашиваются сообщения.
+    Returns:
+        QuerySet: Список сообщений, принадлежащих указанному пользователю.
+    """
     if not CACHE_ENABLED:
         return Message.objects.filter(owner=user)
     key = "messages_list_for_user"
@@ -57,7 +81,12 @@ def get_messages_for_user_from_cache(user):
 
 
 def get_dispatches_from_cache():
-    """Получает список всех рассылок из кеша"""
+    """
+    Получает список всех рассылок из кеша.
+    Если кеш отключен, возвращает все рассылки из базы данных.
+    Returns:
+        QuerySet: Список всех рассылок.
+    """
     if not CACHE_ENABLED:
         return Dispatch.objects.all()
     key = "dispatches_list"
@@ -70,7 +99,14 @@ def get_dispatches_from_cache():
 
 
 def get_dispatches_for_user_from_cache(user):
-    """Получает список всех рассылок из кеша для владельца"""
+    """
+    Получает список всех рассылок из кеша для указанного владельца.
+    Если кеш отключен, возвращает рассылки, принадлежащих указанному пользователю.
+    Args:
+        user (User): Пользователь, для которого запрашиваются рассылки.
+    Returns:
+        QuerySet: Список рассылок, принадлежащих указанному пользователю.
+    """
     if not CACHE_ENABLED:
         return Dispatch.objects.filter(owner=user)
     key = "dispatches_list_for_user"
@@ -83,7 +119,12 @@ def get_dispatches_for_user_from_cache(user):
 
 
 def get_mailing_attempts_from_cache():
-    """Получает список всех попыток рассылок из кеша"""
+    """
+    Получает список всех попыток рассылок из кеша.
+    Если кеш отключен, возвращает все попытки рассылок из базы данных.
+    Returns:
+        QuerySet: Список всех попыток рассылок.
+    """
     if not CACHE_ENABLED:
         return MailingAttempt.objects.all()
     key = "mailing_attempts_list"
@@ -96,7 +137,14 @@ def get_mailing_attempts_from_cache():
 
 
 def get_mailing_attempts_for_user_from_cache(user):
-    """Получает список всех попыток рассылок из кеша для владельца"""
+    """
+    Получает список всех попыток рассылок из кеша для указанного владельца.
+    Если кеш отключен, возвращает попытки рассылок, принадлежащих указанному пользователю.
+    Args:
+        user (User): Пользователь, для которого запрашиваются попытки рассылок.
+    Returns:
+        QuerySet: Список попыток рассылок, принадлежащих указанному пользователю.
+    """
     if not CACHE_ENABLED:
         return MailingAttempt.objects.filter(owner=user)
     key = "mailing_attempts_list_for_user"

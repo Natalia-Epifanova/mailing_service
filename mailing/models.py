@@ -7,6 +7,21 @@ from users.models import User
 
 
 class Recipient(models.Model):
+    """
+    Модель получателя рассылки.
+    Attributes:
+        email (CharField): Email получателя (уникальный)
+        full_name (CharField): Полное имя получателя
+        comment (TextField): Дополнительный комментарий (необязательный)
+        owner (ForeignKey): Ссылка на пользователя-владельца
+    Meta:
+        verbose_name (str): Имя модели в единственном числе
+        verbose_name_plural (str): Имя модели во множественном числе
+        permissions (list): Список дополнительных разрешений для модели
+    Methods:
+        __str__: Возвращает строковое представление объекта (email)
+    """
+
     email = models.CharField(
         max_length=100,
         unique=True,
@@ -38,6 +53,20 @@ class Recipient(models.Model):
 
 
 class Message(models.Model):
+    """
+    Модель сообщения для рассылки.
+    Attributes:
+        theme (CharField): Тема письма
+        content (TextField): Содержимое письма (необязательное)
+        owner (ForeignKey): Ссылка на пользователя-владельца
+    Meta:
+        verbose_name (str): Имя модели в единственном числе
+        verbose_name_plural (str): Имя модели во множественном числе
+        permissions (list): Список дополнительных разрешений для модели
+    Methods:
+        __str__: Возвращает строковое представление объекта (тема письма)
+    """
+
     theme = models.CharField(
         max_length=100,
         verbose_name="Тема письма",
@@ -64,6 +93,26 @@ class Message(models.Model):
 
 
 class Dispatch(models.Model):
+    """
+    Модель рассылки сообщений.
+    Attributes:
+        first_sending_datetime (DateTimeField): Время первой отправки (необязательное)
+        end_of_sending_datetime (DateTimeField): Время окончания отправки (необязательное)
+        status (CharField): Статус рассылки (choices=STATUS_CHOICES)
+        message (ForeignKey): Ссылка на сообщение для рассылки
+        recipient (ManyToManyField): Список получателей рассылки
+        owner (ForeignKey): Ссылка на пользователя-владельца
+    Meta:
+        verbose_name (str): Имя модели в единственном числе
+        verbose_name_plural (str): Имя модели во множественном числе
+        ordering (list): Порядок сортировки по умолчанию
+        permissions (list): Список дополнительных разрешений для модели
+    Methods:
+        save: Переопределенный метод сохранения с обработкой статусов
+        send_emails: Отправка писем всем получателям рассылки
+        __str__: Возвращает строковое представление объекта (сообщение + статус)
+    """
+
     STATUS_CHOICES = [
         ("created", "Создана"),
         ("started", "Запущена"),
@@ -111,8 +160,12 @@ class Dispatch(models.Model):
         ]
 
     def save(self, *args, **kwargs):
-        """Устанавливаем дату первой отправки при изменении статуса на "Запущена"
-        и дату окончания отправки при изменении статуса на "Завершена" """
+        """Переопределенный метод сохранения с обработкой статусов.
+        Устанавливает:
+        - first_sending_datetime при статусе "started"
+        - end_of_sending_datetime при статусе "completed"
+        - Вызывает send_emails() при запуске рассылки
+        """
         if self.status == "started":
             self.first_sending_datetime = timezone.now()
             self.send_emails()
@@ -123,7 +176,11 @@ class Dispatch(models.Model):
         super().save(*args, **kwargs)
 
     def send_emails(self):
-        """Отправка писем для всех получателей"""
+        """Отправляет письма всем получателям рассылки.
+        Для каждой попытки отправки создает запись в MailingAttempt:
+        - При успешной отправке: статус "success"
+        - При ошибке: статус "unsuccessfully" и сохраняет ответ сервера
+        """
         recipients = self.recipient.all()
         for recipient in recipients:
             try:
@@ -152,6 +209,20 @@ class Dispatch(models.Model):
 
 
 class MailingAttempt(models.Model):
+    """
+    Модель попытки отправки письма в рамках рассылки.
+    Attributes:
+        mailing_attempt_datetime (DateTimeField): Время попытки отправки
+        status (CharField): Статус попытки (choices=STATUS_CHOICES)
+        server_response (TextField): Ответ почтового сервера (необязательный)
+        dispatch (ForeignKey): Ссылка на связанную рассылку
+        owner (ForeignKey): Ссылка на пользователя-владельца
+    Meta:
+        verbose_name (str): Имя модели в единственном числе
+        verbose_name_plural (str): Имя модели во множественном числе
+        permissions (list): Список дополнительных разрешений для модели
+    """
+
     STATUS_CHOICES = [
         ("success", "Успешно"),
         ("unsuccessfully", "Не успешно"),
