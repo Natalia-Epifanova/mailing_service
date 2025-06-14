@@ -1,0 +1,49 @@
+{% extends "mailing/base.html" %}
+
+{% block header %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Система управления рассылками</h1>
+    <p class="lead">Список доступных сообщений</p>
+    <p>
+        <a class="btn btn-primary" href="{% url 'mailing:message_create' %}">Добавить сообщение</a>
+    </p>
+</div>
+{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    {% if messages %}
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Тема письма</th>
+            <th>Тело письма</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for message in messages %}
+        <tr>
+            <td>{{ message.theme }}</td>
+            <td>{{ message.content|truncatechars:50 }}</td>
+            <td class="text-end">
+                <div class="btn-group" role="group">
+                    {% if perms.mailing.can_view_message_detail or user == message.owner or user.is_superuser%}
+                    <a class="btn btn-outline-primary"
+                       href="{% url 'mailing:message_detail' message.pk %}">Подробнее</a>
+                    {% endif %}
+                    {% if user == message.owner or user.is_superuser %}
+                    <a class="btn btn-outline-secondary"
+                       href="{% url 'mailing:message_update' message.pk %}">Редактировать</a>
+                    <a class="btn btn-outline-danger" href="{% url 'mailing:message_delete' message.pk %}">Удалить</a>
+                    {% endif %}
+                </div>
+            </td>
+
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Нет доступных сообщений.</p>
+    {% endif %}
+</div>
+{% endblock %}

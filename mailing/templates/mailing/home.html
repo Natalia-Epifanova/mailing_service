@@ -1,0 +1,21 @@
+{% extends "mailing/base.html" %}
+
+{% block header %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Система управления рассылками</h1>
+    <p class="lead">Управляйте своими рассылками и получателями</p>
+
+</div>
+{% endblock %}
+{% block content %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto">
+
+    <p>Всего рассылок: {{ total_dispatches }}</p>
+    <p>Активные рассылки: {{ active_dispatches }}</p>
+    <p>Уникальные получатели: {{ unique_recipients }}</p>
+
+    {% if perms.users.can_view_users_list %}
+    <a href="{% url 'users:users_list' %}" class="btn btn-primary">Управление пользователями</a>
+{% endif %}
+</div>
+{% endblock %}
