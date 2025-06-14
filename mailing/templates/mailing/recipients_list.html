@@ -1,0 +1,49 @@
+{% extends "mailing/base.html" %}
+
+{% block header %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Система управления рассылками</h1>
+    <p class="lead">Список получателей</p>
+    <p>
+        <a class="btn btn-primary" href="{% url 'mailing:recipient_create' %}">Добавить получателя</a>
+    </p>
+</div>
+{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    {% if recipients %}
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Email</th>
+            <th>ФИО</th>
+            <th>Комментарий</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for recipient in recipients %}
+        <tr>
+            <td>{{ recipient.email }}</td>
+            <td>{{ recipient.full_name }}</td>
+            <td>{{ recipient.comment|truncatechars:50 }}</td>
+            <td class="text-end">
+                <div class="btn-group" role="group">
+                    {% if perms.mailing.can_view_recipient_detail or user == recipient.owner or user.is_superuser %}
+                    <a class="btn btn-outline-primary"
+                   href="{% url 'mailing:recipient_detail' recipient.pk %}">Подробнее</a>
+                    {% endif %}
+                    {% if user == recipient.owner or user.is_superuser %}
+                    <a class="btn btn-outline-secondary" href="{% url 'mailing:recipient_update' recipient.pk %}">Редактировать</a>
+                    <a class="btn btn-outline-danger" href="{% url 'mailing:recipient_delete' recipient.pk %}">Удалить</a>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Нет доступных получателей.</p>
+    {% endif %}
+</div>
+{% endblock %}
